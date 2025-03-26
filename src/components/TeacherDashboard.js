@@ -35,4 +35,4 @@ const TeacherDashboard = ({ subjects, setSubjects }) => {
   );
 };
 
-export default TeacherDashboard
+export default TeacherDashboard;

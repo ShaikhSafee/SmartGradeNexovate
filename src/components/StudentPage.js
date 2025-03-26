@@ -112,4 +112,4 @@ const StudentPage = ({ subjects, setSubjects }) => {
   );
 };
 
-export default StudentPage
+export default StudentPage;
