@@ -1,5 +1,5 @@
 {
-  "name": "smartgrade",
+  "name": "smartgrade"
   "version": "0.1.0",
   "private": true,
   "dependencies": {

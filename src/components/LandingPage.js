@@ -17,4 +17,4 @@ const LandingPage = ({ setSubjects }) => {
   );
 };
 
-export default LandingPage;
+export default LandingPage

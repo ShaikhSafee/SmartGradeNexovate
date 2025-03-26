@@ -107,4 +107,4 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   );
 };
 
-export default SubjectPage;
+export default SubjectPage
