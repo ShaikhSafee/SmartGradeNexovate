@@ -50,7 +50,7 @@ const StudentPage = ({ subjects, setSubjects }) => {
       const idealText = subjects[subjectName].idealText;
 
       setMessage("Sending to Gemini 1.5 Pro...");
-      const apiKey = "YOUR_GOOGLE_AI_STUDIO_API_KEY"; // Teri key yaha daal
+      const apiKey = "AIzaSyBv_L-S89nBWxG8VocdP34Nv6WdGxBFtdk"; // Teri key yaha daal
       const response = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + apiKey,
         {
