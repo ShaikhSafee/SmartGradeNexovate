@@ -6,10 +6,12 @@ import { setDoc, doc } from "firebase/firestore";
 const TeacherDashboard = ({ subjects, setSubjects }) => {
   const [subjectName, setSubjectName] = useState("");
   const navigate = useNavigate();
+  const guestUsername = localStorage.getItem("guestUsername"); // Store username for persistence
 
   const addSubject = async () => {
-    if (subjectName) {
-      await setDoc(doc(db, "subjects", subjectName), { ideal: null, students: {} });
+    if (subjectName && guestUsername) {
+      const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
+      await setDoc(subjectRef, { idealText: null, students: {} });
       setSubjectName("");
     }
   };

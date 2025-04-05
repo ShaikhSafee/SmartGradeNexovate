@@ -1,48 +1,47 @@
 .landing-container {
-    text-align: center;
-    margin-top: 100px;
-  }
-  
-  h1 {
-    font-size: 2.5rem;
-    color: #333;
-  }
-  
-  p {
-    font-size: 1.2rem;
-    color: #666;
-  }
-  
-  .button-container {
-    margin-top: 20px;
-  }
-  
-  button {
-    margin: 10px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    transition: 0.3s;
-  }
-  
-  button:hover {
-    opacity: 0.8;
-  }
-  
-  button:nth-child(1) {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  button:nth-child(2) {
-    background-color: #28a745;
-    color: white;
-  }
-  
-  button:nth-child(3) {
-    background-color: #ffc107;
-    color: black;
-  }
-  /*
+  text-align: center;
+  margin-top: 100px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #333;
+}
+
+p {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:nth-child(1) {
+  background-color: #007bff;
+  color: white;
+}
+
+button:nth-child(2) {
+  background-color: #28a745;
+  color: white;
+}
+
+button:nth-child(3) {
+  background-color: #ffc107;
+  color: black;
+}

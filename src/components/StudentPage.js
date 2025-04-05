@@ -4,7 +4,7 @@ import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import { db } from "../firebase";
 import { updateDoc, doc } from "firebase/firestore";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 const StudentPage = ({ subjects, setSubjects }) => {
   const { subjectName, studentName } = useParams();
@@ -12,6 +12,7 @@ const StudentPage = ({ subjects, setSubjects }) => {
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [message, setMessage] = useState("");
+  const guestUsername = localStorage.getItem("guestUsername");
 
   const extractTextFromPDF = async (file) => {
     const fileReader = new FileReader();
@@ -39,8 +40,8 @@ const StudentPage = ({ subjects, setSubjects }) => {
   const uploadAndCompare = async () => {
     setMessage("");
     setFeedback("");
-    if (!studentFile || !subjects[subjectName]?.idealText) {
-      setMessage("Please upload student PDF and ensure ideal answer text is set in Firebase");
+    if (!studentFile || !subjects[subjectName]?.idealText || !guestUsername) {
+      setMessage("Please upload student PDF and ensure ideal answer text is set");
       return;
     }
 
@@ -50,7 +51,7 @@ const StudentPage = ({ subjects, setSubjects }) => {
       const idealText = subjects[subjectName].idealText;
 
       setMessage("Sending to Gemini 1.5 Pro...");
-      const apiKey = "AIzaSyBv_L-S89nBWxG8VocdP34Nv6WdGxBFtdk"; // Teri key yaha daal
+      const apiKey = process.env.REACT_APP_GEMINI_API_KEY || "AIzaSyBv_L-S89nBWxG8VocdP34Nv6WdGxBFtdk";
       const response = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + apiKey,
         {
@@ -82,7 +83,7 @@ const StudentPage = ({ subjects, setSubjects }) => {
       setFeedback(extractedFeedback);
       setMessage("Comparison complete!");
 
-      const subjectRef = doc(db, "subjects", subjectName);
+      const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
       const currentStudents = subjects[subjectName]?.students || {};
       await updateDoc(subjectRef, {
         students: { ...currentStudents, [studentName]: { text: studentText } },

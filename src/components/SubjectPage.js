@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { updateDoc, doc } from "firebase/firestore";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.0.375/pdf.worker.min.js";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 const SubjectPage = ({ subjects, setSubjects }) => {
   const { subjectName } = useParams();
@@ -12,6 +12,7 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   const [idealFile, setIdealFile] = useState(null);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const guestUsername = localStorage.getItem("guestUsername");
 
   const extractTextFromPDF = async (file) => {
     const fileReader = new FileReader();
@@ -37,12 +38,16 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   };
 
   const addStudent = async () => {
-    if (studentName) {
+    if (studentName && guestUsername) {
       try {
-        const subjectRef = doc(db, "subjects", subjectName);
+        const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
         const currentStudents = subjects[subjectName]?.students || {};
+        if (currentStudents[studentName]) {
+          setMessage("Student already exists!");
+          return;
+        }
         await updateDoc(subjectRef, {
-          students: { ...currentStudents, [studentName]: null },
+          students: { ...currentStudents, [studentName]: { text: null } },
         });
         setStudentName("");
         setMessage(`Student ${studentName} added!`);
@@ -55,11 +60,11 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   };
 
   const handleIdealUpload = async () => {
-    if (idealFile) {
+    if (idealFile && guestUsername) {
       try {
         setMessage("Extracting text from ideal PDF...");
         const idealText = await extractTextFromPDF(idealFile);
-        const subjectRef = doc(db, "subjects", subjectName);
+        const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
         await updateDoc(subjectRef, { idealText });
         setIdealFile(null);
         setMessage("Ideal answer text uploaded to Firebase!");
@@ -78,7 +83,7 @@ const SubjectPage = ({ subjects, setSubjects }) => {
         <input
           type="text"
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)}
+          onChange={(e) => setStudentName(e.target.value)} // Fixed: setStudentName instead of setUsername
           placeholder="Enter student name"
         />
         <button onClick={addStudent}>Add Student</button>

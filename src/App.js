@@ -9,10 +9,17 @@ import StudentPage from "./components/StudentPage";
 
 const App = () => {
   const [subjects, setSubjects] = useState({});
+  const [guestUsername, setGuestUsername] = useState(null);
 
   useEffect(() => {
+    if (!guestUsername) {
+      setSubjects({}); // Clear subjects if no username is set
+      return;
+    }
+
+    const subjectsRef = collection(db, "guests", guestUsername, "subjects");
     const unsubscribe = onSnapshot(
-      collection(db, "subjects"),
+      subjectsRef,
       (snapshot) => {
         const data = {};
         snapshot.forEach((doc) => {
@@ -25,12 +32,15 @@ const App = () => {
       }
     );
     return () => unsubscribe();
-  }, []);
+  }, [guestUsername]); // Re-run when guestUsername changes
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage setSubjects={setSubjects} />} />
+        <Route
+          path="/"
+          element={<LandingPage setSubjects={setSubjects} setGuestUsername={setGuestUsername} />}
+        />
         <Route
           path="/dashboard"
           element={<TeacherDashboard subjects={subjects} setSubjects={setSubjects} />}
@@ -49,4 +59,3 @@ const App = () => {
 };
 
 export default App;
-//
