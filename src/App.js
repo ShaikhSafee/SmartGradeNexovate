@@ -6,20 +6,14 @@ import LandingPage from "./components/LandingPage";
 import TeacherDashboard from "./components/TeacherDashboard";
 import SubjectPage from "./components/SubjectPage";
 import StudentPage from "./components/StudentPage";
+import "./App.css";
 
 const App = () => {
   const [subjects, setSubjects] = useState({});
-  const [guestUsername, setGuestUsername] = useState(null);
 
   useEffect(() => {
-    if (!guestUsername) {
-      setSubjects({}); // Clear subjects if no username is set
-      return;
-    }
-
-    const subjectsRef = collection(db, "guests", guestUsername, "subjects");
     const unsubscribe = onSnapshot(
-      subjectsRef,
+      collection(db, "subjects"),
       (snapshot) => {
         const data = {};
         snapshot.forEach((doc) => {
@@ -32,29 +26,28 @@ const App = () => {
       }
     );
     return () => unsubscribe();
-  }, [guestUsername]); // Re-run when guestUsername changes
+  }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={<LandingPage setSubjects={setSubjects} setGuestUsername={setGuestUsername} />}
-        />
-        <Route
-          path="/dashboard"
-          element={<TeacherDashboard subjects={subjects} setSubjects={setSubjects} />}
-        />
-        <Route
-          path="/subject/:subjectName"
-          element={<SubjectPage subjects={subjects} setSubjects={setSubjects} />}
-        />
-        <Route
-          path="/subject/:subjectName/student/:studentName"
-          element={<StudentPage subjects={subjects} setSubjects={setSubjects} />}
-        />
-      </Routes>
-    </Router>
+    <div className="app-container">
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage setSubjects={setSubjects} />} />
+          <Route
+            path="/dashboard"
+            element={<TeacherDashboard subjects={subjects} setSubjects={setSubjects} />}
+          />
+          <Route
+            path="/subject/:subjectName"
+            element={<SubjectPage subjects={subjects} setSubjects={setSubjects} />}
+          />
+          <Route
+            path="/subject/:subjectName/student/:studentName"
+            element={<StudentPage subjects={subjects} setSubjects={setSubjects} />}
+          />
+        </Routes>
+      </Router>
+    </div>
   );
 };
 
