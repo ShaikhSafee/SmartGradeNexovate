@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import "pdfjs-dist/build/pdf.worker.entry";
 import { db } from "../firebase";
 import { updateDoc, doc } from "firebase/firestore";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+import "../StudentFolder.css";
 
 const StudentPage = ({ subjects, setSubjects }) => {
   const { subjectName, studentName } = useParams();
+  const username = localStorage.getItem("username");
+  const fullSubjectName = subjectName; // Already prefixed from URL
   const [studentFile, setStudentFile] = useState(null);
   const [score, setScore] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [message, setMessage] = useState("");
-  const guestUsername = localStorage.getItem("guestUsername");
 
   const extractTextFromPDF = async (file) => {
     const fileReader = new FileReader();
@@ -40,18 +41,18 @@ const StudentPage = ({ subjects, setSubjects }) => {
   const uploadAndCompare = async () => {
     setMessage("");
     setFeedback("");
-    if (!studentFile || !subjects[subjectName]?.idealText || !guestUsername) {
-      setMessage("Please upload student PDF and ensure ideal answer text is set");
+    if (!studentFile || !subjects[fullSubjectName]?.idealText) {
+      setMessage("Please upload student PDF and ensure ideal answer text is set in Firebase");
       return;
     }
 
     try {
       setMessage("Extracting text from student PDF...");
       const studentText = await extractTextFromPDF(studentFile);
-      const idealText = subjects[subjectName].idealText;
+      const idealText = subjects[fullSubjectName].idealText;
 
       setMessage("Sending to Gemini 1.5 Pro...");
-      const apiKey = process.env.REACT_APP_GEMINI_API_KEY || "AIzaSyBv_L-S89nBWxG8VocdP34Nv6WdGxBFtdk";
+      const apiKey = "AIzaSyBv_L-S89nBWxG8VocdP34Nv6WdGxBFtdk";
       const response = await fetch(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + apiKey,
         {
@@ -62,7 +63,7 @@ const StudentPage = ({ subjects, setSubjects }) => {
               {
                 parts: [
                   {
-                    text: `Compare the ideal answer text with the student answer text and respond only with: "Score: X/10, Feedback: [short feedback max 20 words]"\nIdeal Answer Text: ${idealText}\nStudent Answer Text: ${studentText}`,
+                    text: `Compare the ideal answer text with the student answer text ,smartly analyse the content , there may be language differences but content may still be correct so analyse properly for student answer text on the basis of ideal answer text , also this is possible that sequence of question number(if any) may be different in ideal and student answer text, so ideantify question number(if any) and their respective answers and then accordinly evaluate, respond only with : "Score: x/10 , Feedback: [short feedback max 100 words]"\nIdeal Answer Text: ${idealText}\nStudent Answer Text: ${studentText}`,
                   },
                 ],
               },
@@ -83,8 +84,8 @@ const StudentPage = ({ subjects, setSubjects }) => {
       setFeedback(extractedFeedback);
       setMessage("Comparison complete!");
 
-      const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
-      const currentStudents = subjects[subjectName]?.students || {};
+      const subjectRef = doc(db, "subjects", fullSubjectName);
+      const currentStudents = subjects[fullSubjectName]?.students || {};
       await updateDoc(subjectRef, {
         students: { ...currentStudents, [studentName]: { text: studentText } },
       });
@@ -95,9 +96,9 @@ const StudentPage = ({ subjects, setSubjects }) => {
   };
 
   return (
-    <div>
-      <h2>Student: {studentName} (Subject: {subjectName})</h2>
-      <div>
+    <div className="page-container">
+      <h2>Student: {studentName} (Subject: {subjectName.replace(`${username}_`, "")})</h2>
+      <div className="student-folder">
         <label>Student Answer PDF:</label>
         <input
           type="file"
