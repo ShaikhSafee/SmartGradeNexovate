@@ -1,74 +1,50 @@
 body {
   font-family: Arial, sans-serif;
-  padding: 20px;
-  background-color: #f4f4f4;
+  padding: 10px; /* Reduced for mobile */
+  background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+  min-height: 100vh;
+  margin: 0;
   text-align: center;
+}
+
+.page-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px auto;
+  width: 90%; /* Changed from max-width to width for flexibility */
+  max-width: 800px; /* Still caps at 800px on larger screens */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 button {
   background: #007bff;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 8px 16px; /* Adjusted for touch targets */
   cursor: pointer;
   margin: 5px;
   border-radius: 5px;
+  font-size: 16px; /* Readable on mobile */
+  width: 100%; /* Full-width buttons on mobile */
+  max-width: 200px; /* Limits width on larger screens */
 }
 
 button:hover {
   background: #0056b3;
 }
-.student-folder {
-  padding: 20px;
-  border: 2px solid #007bff;
-  border-radius: 8px;
-  background: #f4f4f4;
-  margin: 15px;
-}
 
-.upload-container {
-  margin: 15px 0;
-  padding: 15px;
-  border: 2px dashed #007bff;
-  border-radius: 10px;
-  text-align: center;
-  background-color: #f9f9f9;
-}
-
-.upload-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.upload-btn:hover {
-  background-color: #0056b3;
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.file-name {
-  font-size: 14px;
-  color: #333;
-}
-
-.change-file-btn {
-  background-color: red;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.change-file-btn:hover {
-  background-color: darkred;
+@media (max-width: 600px) {
+  body {
+    padding: 5px;
+  }
+  .page-container {
+    padding: 10px;
+    margin: 5px auto;
+  }
+  input {
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn’t overflow */
+    font-size: 14px; /* Readable on mobile */
+  }
 }
