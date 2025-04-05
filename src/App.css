@@ -1,4 +1,6 @@
-.App {
+.app-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%); /* Same gradient as body */
   text-align: center;
 }
 
