@@ -1,7 +1,9 @@
-Folder {
+.folder {
   border: 1px solid #ddd;
   padding: 10px;
   margin: 10px 0;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
 }
 
 .folder-list {
