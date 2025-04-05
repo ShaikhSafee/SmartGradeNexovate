@@ -6,19 +6,32 @@ import { setDoc, doc } from "firebase/firestore";
 const TeacherDashboard = ({ subjects, setSubjects }) => {
   const [subjectName, setSubjectName] = useState("");
   const navigate = useNavigate();
-  const guestUsername = localStorage.getItem("guestUsername"); // Store username for persistence
+  const username = localStorage.getItem("username");
 
   const addSubject = async () => {
-    if (subjectName && guestUsername) {
-      const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
-      await setDoc(subjectRef, { idealText: null, students: {} });
+    if (subjectName && username) {
+      const fullSubjectName = `${username}_${subjectName}`;
+      await setDoc(doc(db, "subjects", fullSubjectName), {
+        creator: username,
+        idealText: null,
+        students: {},
+      });
       setSubjectName("");
+    } else {
+      alert("Please ensure you have a username set and enter a subject name.");
     }
   };
 
+  const userSubjects = Object.keys(subjects)
+    .filter((key) => subjects[key].creator === username)
+    .reduce((obj, key) => {
+      obj[key] = subjects[key];
+      return obj;
+    }, {});
+
   return (
-    <div>
-      <h2>Teacher Dashboard</h2>
+    <div className="page-container">
+      <h2>Teacher Dashboard - {username || "Guest"}</h2>
       <input
         type="text"
         value={subjectName}
@@ -27,9 +40,11 @@ const TeacherDashboard = ({ subjects, setSubjects }) => {
       />
       <button onClick={addSubject}>Add Subject</button>
       <ul>
-        {Object.keys(subjects).map((subject) => (
+        {Object.keys(userSubjects).map((subject) => (
           <li key={subject}>
-            <button onClick={() => navigate(`/subject/${subject}`)}>{subject}</button>
+            <button onClick={() => navigate(`/subject/${subject}`)}>
+              {subject.replace(`${username}_`, "")}
+            </button>
           </li>
         ))}
       </ul>
