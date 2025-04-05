@@ -3,16 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { updateDoc, doc } from "firebase/firestore";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+import "pdfjs-dist/build/pdf.worker.entry";
+import "../Folder.css";
 
 const SubjectPage = ({ subjects, setSubjects }) => {
   const { subjectName } = useParams();
+  const username = localStorage.getItem("username");
+  const fullSubjectName = subjectName; // Already prefixed from URL
   const [studentName, setStudentName] = useState("");
   const [idealFile, setIdealFile] = useState(null);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const guestUsername = localStorage.getItem("guestUsername");
 
   const extractTextFromPDF = async (file) => {
     const fileReader = new FileReader();
@@ -38,16 +39,12 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   };
 
   const addStudent = async () => {
-    if (studentName && guestUsername) {
+    if (studentName) {
       try {
-        const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
-        const currentStudents = subjects[subjectName]?.students || {};
-        if (currentStudents[studentName]) {
-          setMessage("Student already exists!");
-          return;
-        }
+        const subjectRef = doc(db, "subjects", fullSubjectName);
+        const currentStudents = subjects[fullSubjectName]?.students || {};
         await updateDoc(subjectRef, {
-          students: { ...currentStudents, [studentName]: { text: null } },
+          students: { ...currentStudents, [studentName]: null },
         });
         setStudentName("");
         setMessage(`Student ${studentName} added!`);
@@ -60,11 +57,11 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   };
 
   const handleIdealUpload = async () => {
-    if (idealFile && guestUsername) {
+    if (idealFile) {
       try {
         setMessage("Extracting text from ideal PDF...");
         const idealText = await extractTextFromPDF(idealFile);
-        const subjectRef = doc(db, "guests", guestUsername, "subjects", subjectName);
+        const subjectRef = doc(db, "subjects", fullSubjectName);
         await updateDoc(subjectRef, { idealText });
         setIdealFile(null);
         setMessage("Ideal answer text uploaded to Firebase!");
@@ -77,13 +74,13 @@ const SubjectPage = ({ subjects, setSubjects }) => {
   };
 
   return (
-    <div>
-      <h2>Subject: {subjectName}</h2>
+    <div className="page-container">
+      <h2>Subject: {subjectName.replace(`${username}_`, "")}</h2>
       <div>
         <input
           type="text"
           value={studentName}
-          onChange={(e) => setStudentName(e.target.value)} // Fixed: setStudentName instead of setUsername
+          onChange={(e) => setStudentName(e.target.value)}
           placeholder="Enter student name"
         />
         <button onClick={addStudent}>Add Student</button>
@@ -96,13 +93,13 @@ const SubjectPage = ({ subjects, setSubjects }) => {
           onChange={(e) => setIdealFile(e.target.files[0])}
         />
         <button onClick={handleIdealUpload}>Upload Ideal Answer</button>
-        {subjects[subjectName]?.idealText && <p>Ideal answer text uploaded</p>}
+        {subjects[fullSubjectName]?.idealText && <p>Ideal answer text uploaded</p>}
       </div>
       {message && <p>{message}</p>}
-      <ul>
-        {Object.keys(subjects[subjectName]?.students || {}).map((student) => (
-          <li key={student}>
-            <button onClick={() => navigate(`/subject/${subjectName}/student/${student}`)}>
+      <ul className="folder-list">
+        {Object.keys(subjects[fullSubjectName]?.students || {}).map((student) => (
+          <li key={student} className="folder">
+            <button onClick={() => navigate(`/subject/${fullSubjectName}/student/${student}`)}>
               {student}
             </button>
           </li>
